@@ -1,0 +1,34 @@
+{
+  "name": "workout-planner-monorepo",
+  "version": "1.0.0",
+  "description": "Full-stack Workout Planner web application",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install && npm run install:server && npm run install:client",
+    "install:server": "npm --prefix server install",
+    "install:client": "npm --prefix client install",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "build": "npm --prefix client run build",
+    "test:server": "npm --prefix server test",
+    "db:migrate": "npm --prefix server run db:migrate",
+    "db:seed": "npm --prefix server run db:seed",
+    "db:studio": "npm --prefix server run db:studio"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "keywords": [
+    "workout",
+    "planner",
+    "fitness",
+    "nutrition",
+    "react",
+    "vite",
+    "express",
+    "prisma"
+  ],
+  "author": "",
+  "license": "ISC"
+}

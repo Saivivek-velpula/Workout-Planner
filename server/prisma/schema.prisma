@@ -1,0 +1,143 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  routines     Routine[]
+  meals        Meal[]
+  dailyEntries DailyEntry[]
+
+  @@index([email])
+}
+
+model Routine {
+  id          String            @id @default(uuid())
+  userId      String
+  name        String
+  description String?
+  goalType    String            // strength, cardio, HIIT, mobility, other
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercises   RoutineExercise[]
+  entryRoutines EntryRoutine[]
+
+  @@index([userId])
+}
+
+model RoutineExercise {
+  id          String   @id @default(uuid())
+  routineId   String
+  order       Int
+  name        String
+  sets        Int
+  reps        Int
+  weight      Float?
+  duration    Int?     // duration in seconds or minutes
+  restSeconds Int      @default(60)
+  notes       String?
+
+  routine     Routine  @relation(fields: [routineId], references: [id], onDelete: Cascade)
+
+  @@index([routineId])
+}
+
+model Meal {
+  id          String     @id @default(uuid())
+  userId      String
+  name        String
+  mealType    String     // breakfast, lunch, dinner, snack
+  description String?
+  calories    Int
+  protein     Float
+  carbs       Float
+  fat         Float
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items       MealItem[]
+  entryMeals  EntryMeal[]
+
+  @@index([userId])
+}
+
+model MealItem {
+  id        String  @id @default(uuid())
+  mealId    String
+  name      String
+  amount    String? // e.g. "150g" or "1 cup"
+  calories  Int?
+  protein   Float?
+  carbs     Float?
+  fat       Float?
+
+  meal      Meal    @relation(fields: [mealId], references: [id], onDelete: Cascade)
+
+  @@index([mealId])
+}
+
+model DailyEntry {
+  id          String         @id @default(uuid())
+  userId      String
+  date        String         // ISO format string YYYY-MM-DD
+  bodyWeight  Float?         // in kg or lbs
+  waterIntake Float?         // in Liters or glasses
+  moodEnergy  Int?           // 1 to 5 scale
+  notes       String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  routines    EntryRoutine[]
+  meals       EntryMeal[]
+
+  @@unique([userId, date])
+  @@index([userId])
+  @@index([date])
+}
+
+model EntryRoutine {
+  id              String      @id @default(uuid())
+  dailyEntryId    String
+  routineId       String?
+  routineName     String
+  completed       Boolean     @default(true)
+  durationMinutes Int?
+  actualExercises String?     // Serialized JSON with per-exercise actual sets/reps/weight
+
+  dailyEntry      DailyEntry  @relation(fields: [dailyEntryId], references: [id], onDelete: Cascade)
+  routine         Routine?    @relation(fields: [routineId], references: [id], onDelete: SetNull)
+
+  @@index([dailyEntryId])
+}
+
+model EntryMeal {
+  id           String      @id @default(uuid())
+  dailyEntryId String
+  mealId       String?
+  mealName     String
+  mealType     String      // breakfast, lunch, dinner, snack
+  calories     Int
+  protein      Float
+  carbs        Float
+  fat          Float
+
+  dailyEntry   DailyEntry  @relation(fields: [dailyEntryId], references: [id], onDelete: Cascade)
+  meal         Meal?       @relation(fields: [mealId], references: [id], onDelete: SetNull)
+
+  @@index([dailyEntryId])
+}
