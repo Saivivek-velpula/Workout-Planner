@@ -1,13 +1,30 @@
 import axios from 'axios';
 
-// Normalize API baseURL to always point to /api endpoint
-const rawUrl = import.meta.env.VITE_API_URL || '/api';
-const baseURL = rawUrl.startsWith('http')
-  ? (rawUrl.endsWith('/api') ? rawUrl : `${rawUrl.replace(/\/+$/, '')}/api`)
-  : '/api';
+// Determine the API baseURL dynamically:
+// 1. If VITE_API_URL is explicitly set, use it.
+// 2. In local development (localhost / 127.0.0.1), use relative '/api' (Vite proxy).
+// 3. In production deployment (e.g. Vercel), default directly to the deployed Render backend API.
+const getBaseURL = () => {
+  if (import.meta.env.VITE_API_URL) {
+    const raw = import.meta.env.VITE_API_URL;
+    return raw.startsWith('http')
+      ? (raw.endsWith('/api') ? raw : `${raw.replace(/\/+$/, '')}/api`)
+      : raw;
+  }
+
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    if (host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0') {
+      return '/api';
+    }
+  }
+
+  // Deployed Render backend URL
+  return 'https://workout-planner-afh0.onrender.com/api';
+};
 
 const api = axios.create({
-  baseURL,
+  baseURL: getBaseURL(),
   headers: {
     'Content-Type': 'application/json',
   },
@@ -25,18 +42,25 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor to handle 401s
+// Response interceptor to handle 401 Unauthorized cleanly
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Don't auto-redirect if checking auth or on login page
-      const isAuthCheck = error.config?.url?.includes('/auth/me');
-      const isLoginOrRegister = error.config?.url?.includes('/auth/login') || error.config?.url?.includes('/auth/register');
-      if (!isAuthCheck && !isLoginOrRegister) {
+      const isLoginOrRegister =
+        error.config?.url?.includes('/auth/login') ||
+        error.config?.url?.includes('/auth/register');
+
+      if (!isLoginOrRegister) {
         localStorage.removeItem('workout_token');
         localStorage.removeItem('workout_user');
-        window.location.href = '/login';
+        if (
+          typeof window !== 'undefined' &&
+          window.location.pathname !== '/login' &&
+          window.location.pathname !== '/register'
+        ) {
+          window.location.href = '/login';
+        }
       }
     }
     return Promise.reject(error);

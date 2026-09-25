@@ -14,6 +14,12 @@ const errorHandler = (err, req, res, next) => {
     return next(err);
   }
 
+  // Ensure CORS headers are present on error responses
+  if (req.headers && req.headers.origin) {
+    res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  }
+
   // Zod Validation Error
   if (err instanceof ZodError) {
     const formattedErrors = err.errors.map(e => ({

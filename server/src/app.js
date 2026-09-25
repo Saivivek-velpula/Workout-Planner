@@ -13,12 +13,33 @@ const statsRoutes = require('./routes/statsRoutes');
 
 const app = express();
 
-// Middlewares
-app.use(cors({
-  origin: '*', // Allows local dev and cross-origin deployment
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+// Robust CORS configuration supporting localhost, Vercel, Render, and custom domains
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, server-to-server)
+    if (!origin) return callback(null, true);
+    // Dynamically allow requesting origin (supports localhost, vercel.app preview/production, and custom domains)
+    return callback(null, true);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Requested-With',
+    'Accept',
+    'Origin',
+    'Access-Control-Request-Method',
+    'Access-Control-Request-Headers'
+  ],
+  exposedHeaders: ['Authorization', 'Content-Length', 'X-Total-Count'],
+  optionsSuccessStatus: 200
+};
+
+// Apply CORS middleware
+app.use(cors(corsOptions));
+// Handle preflight OPTIONS requests for all endpoints
+app.options('*', cors(corsOptions));
 
 app.use(express.json());
 
