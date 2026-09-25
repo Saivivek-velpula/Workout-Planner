@@ -1,13 +1,12 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.js";
 
 @layer base {
   * {
-    border-color: theme('colors.slate.200');
+    border-color: var(--color-slate-200, #e2e8f0);
   }
   .dark * {
-    border-color: theme('colors.slate.800');
+    border-color: var(--color-slate-800, #1e293b);
   }
 
   body {
