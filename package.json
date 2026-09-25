@@ -12,7 +12,8 @@
     "dev:client": "npm --prefix client run dev",
     "build": "npm --prefix client run build",
     "test:server": "npm --prefix server test",
-    "db:migrate": "npm --prefix server run db:migrate",
+    "db:migrate": "npm --prefix server run db:push",
+    "db:push": "npm --prefix server run db:push",
     "db:seed": "npm --prefix server run db:seed",
     "db:studio": "npm --prefix server run db:studio"
   },

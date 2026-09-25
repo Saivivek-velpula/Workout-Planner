@@ -3,12 +3,12 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id           String        @id @default(uuid())
+  id           String        @id @default(auto()) @map("_id") @db.ObjectId
   email        String        @unique
   passwordHash String
   name         String
@@ -18,13 +18,11 @@ model User {
   routines     Routine[]
   meals        Meal[]
   dailyEntries DailyEntry[]
-
-  @@index([email])
 }
 
 model Routine {
-  id          String            @id @default(uuid())
-  userId      String
+  id          String            @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String            @db.ObjectId
   name        String
   description String?
   goalType    String            // strength, cardio, HIIT, mobility, other
@@ -39,8 +37,8 @@ model Routine {
 }
 
 model RoutineExercise {
-  id          String   @id @default(uuid())
-  routineId   String
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  routineId   String   @db.ObjectId
   order       Int
   name        String
   sets        Int
@@ -56,8 +54,8 @@ model RoutineExercise {
 }
 
 model Meal {
-  id          String     @id @default(uuid())
-  userId      String
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String     @db.ObjectId
   name        String
   mealType    String     // breakfast, lunch, dinner, snack
   description String?
@@ -76,8 +74,8 @@ model Meal {
 }
 
 model MealItem {
-  id        String  @id @default(uuid())
-  mealId    String
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  mealId    String  @db.ObjectId
   name      String
   amount    String? // e.g. "150g" or "1 cup"
   calories  Int?
@@ -91,8 +89,8 @@ model MealItem {
 }
 
 model DailyEntry {
-  id          String         @id @default(uuid())
-  userId      String
+  id          String         @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String         @db.ObjectId
   date        String         // ISO format string YYYY-MM-DD
   bodyWeight  Float?         // in kg or lbs
   waterIntake Float?         // in Liters or glasses
@@ -111,9 +109,9 @@ model DailyEntry {
 }
 
 model EntryRoutine {
-  id              String      @id @default(uuid())
-  dailyEntryId    String
-  routineId       String?
+  id              String      @id @default(auto()) @map("_id") @db.ObjectId
+  dailyEntryId    String      @db.ObjectId
+  routineId       String?     @db.ObjectId
   routineName     String
   completed       Boolean     @default(true)
   durationMinutes Int?
@@ -126,9 +124,9 @@ model EntryRoutine {
 }
 
 model EntryMeal {
-  id           String      @id @default(uuid())
-  dailyEntryId String
-  mealId       String?
+  id           String      @id @default(auto()) @map("_id") @db.ObjectId
+  dailyEntryId String      @db.ObjectId
+  mealId       String?     @db.ObjectId
   mealName     String
   mealType     String      // breakfast, lunch, dinner, snack
   calories     Int

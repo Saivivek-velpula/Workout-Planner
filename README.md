@@ -41,7 +41,7 @@ A complete full-stack fitness and nutrition tracking web application. Create cus
 ## Tech Stack
 
 - **Frontend**: React 19, Vite, Tailwind CSS, React Router v7, Axios, Lucide React
-- **Backend**: Node.js (v24), Express, Prisma ORM, SQLite
+- **Backend**: Node.js (v24), Express, Prisma ORM, MongoDB Atlas
 - **Auth & Security**: JSON Web Tokens (JWT), bcryptjs
 - **Validation**: Zod (backend schema validation), inline form errors (frontend)
 - **Testing**: Jest, Supertest
@@ -83,11 +83,11 @@ cd ..
 From the server directory (or root):
 
 ```bash
-# Push Prisma schema to SQLite database
-npm --prefix server run db:push
+# Push Prisma schema and indexes to MongoDB Atlas
+npm run db:push
 
 # Seed sample routines, meals, and daily logs
-npm --prefix server run db:seed
+npm run db:seed
 ```
 
 ### 4. Running the Application
