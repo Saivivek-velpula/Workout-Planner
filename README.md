@@ -122,6 +122,45 @@ npm run test:server
 
 ---
 
+## Deploying Backend to Render 🚀
+
+You can easily deploy the backend to [Render.com](https://render.com) using either **Render Blueprint** (automated) or as a **Web Service** manually.
+
+### Option A: 1-Click Render Blueprint (Recommended)
+1. Push your repository to GitHub.
+2. In the Render Dashboard, click **New +** and select **Blueprint**.
+3. Select your repository. Render will automatically read `render.yaml` and configure the service, build commands, and environment variables!
+4. Click **Apply**.
+
+### Option B: Manual Web Service Setup
+1. In Render Dashboard, click **New +** > **Web Service**.
+2. Connect your GitHub repository.
+3. Configure the following settings:
+   - **Name**: `workout-planner-api`
+   - **Environment**: `Node`
+   - **Root Directory**: `server`
+   - **Build Command**: `npm install && npx prisma generate && npx prisma db push && node prisma/seed.js`
+   - **Start Command**: `npm start`
+   - **Instance Type**: `Free`
+4. Add the following **Environment Variables**:
+   - `NODE_ENV`: `production`
+   - `DATABASE_URL`: `file:./dev.db`
+   - `JWT_SECRET`: *(Click 'Generate' or enter a secure random string)*
+   - `JWT_EXPIRES_IN`: `7d`
+   - `CLIENT_URL`: `*`
+5. Click **Deploy Web Service**. Render will install dependencies, generate the Prisma client, push database tables, seed the demo user and sample data, and start the API!
+
+### Connecting the Frontend
+Once your backend is deployed, Render provides a URL (e.g. `https://workout-planner-api.onrender.com`).
+When deploying the frontend (e.g. to Vercel, Netlify, or Render Static Site):
+- Set the environment variable:
+  ```env
+  VITE_API_URL=https://workout-planner-api.onrender.com/api
+  ```
+The frontend automatically connects to your live Render backend!
+
+---
+
 ## Environment Variables
 
 ### Backend (`server/.env`)
